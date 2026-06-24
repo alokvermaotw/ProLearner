@@ -637,56 +637,102 @@ async function executeLLMCall(systemPrompt, userPrompt) {
   
   const pageText = pageContext ? pageContext.content : "No page text extracted.";
   
-  if (apiConfig.provider === 'gemini') {
-    // Call Gemini API
-    const model = apiConfig.model || 'gemini-1.5-flash';
-    // Use v1 for stable models, v1beta for experimental/preview models
-    const apiVersion = model.includes('2.0') || model.includes('3.5') || model.includes('exp') ? 'v1beta' : 'v1';
-    const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${key}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [{ text: `${systemPrompt}\n\nPage Text Context:\n${pageText}\n\nUser Question/Instruction:\n${userPrompt}` }]
-        }],
-        generationConfig: { temperature: 0.2 }
-      })
-    });
-    
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `Gemini API returned status ${response.status}`);
+  let model = apiConfig.model || 'gemini-1.5-flash';
+  
+  // Model aliases to map unreleased/hypothetical models to working equivalents
+  const modelAliases = {
+    'gemini-3.5-flash': 'gemini-2.0-flash',
+    'gemini-3.5-pro': 'gemini-1.5-pro',
+    'gpt-5': 'gpt-4o',
+    'gpt-5-mini': 'gpt-4o-mini'
+  };
+  
+  if (modelAliases[model]) {
+    model = modelAliases[model];
+  }
+
+  const maxRetries = 3;
+  let delay = 1000; // 1 second initial delay
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (apiConfig.provider === 'gemini') {
+        const apiVersion = model.includes('2.0') || model.includes('3.5') || model.includes('exp') ? 'v1beta' : 'v1';
+        const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${key}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              role: 'user',
+              parts: [{ text: `${systemPrompt}\n\nPage Text Context:\n${pageText}\n\nUser Question/Instruction:\n${userPrompt}` }]
+            }],
+            generationConfig: { temperature: 0.2 }
+          })
+        });
+        
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const errMsg = err.error?.message || `Gemini API returned status ${response.status}`;
+          
+          if ((response.status === 429 || response.status === 503) && attempt < maxRetries) {
+            console.warn(`Attempt ${attempt} failed with status ${response.status}. Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
+            continue;
+          }
+          
+          throw new Error(errMsg);
+        }
+        
+        const result = await response.json();
+        if (!result.candidates || result.candidates.length === 0 || !result.candidates[0].content) {
+          throw new Error("No response content generated from Gemini.");
+        }
+        return result.candidates[0].content.parts[0].text;
+        
+      } else {
+        // Call OpenAI API
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `Page Text Context:\n${pageText}\n\nInstruction:\n${userPrompt}` }
+            ],
+            temperature: 0.2
+          })
+        });
+        
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const errMsg = err.error?.message || `OpenAI API returned status ${response.status}`;
+          
+          if ((response.status === 429 || response.status === 503) && attempt < maxRetries) {
+            console.warn(`Attempt ${attempt} failed with status ${response.status}. Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
+            continue;
+          }
+          
+          throw new Error(errMsg);
+        }
+        
+        const result = await response.json();
+        return result.choices[0].message.content;
+      }
+    } catch (err) {
+      if (attempt === maxRetries) {
+        throw err;
+      }
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 2;
     }
-    const result = await response.json();
-    return result.candidates[0].content.parts[0].text;
-    
-  } else {
-    // Call OpenAI API
-    const model = apiConfig.model || 'gpt-4o-mini';
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${key}`
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Page Text Context:\n${pageText}\n\nInstruction:\n${userPrompt}` }
-        ],
-        temperature: 0.2
-      })
-    });
-    
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.error?.message || `OpenAI API returned status ${response.status}`);
-    }
-    const result = await response.json();
-    return result.choices[0].message.content;
   }
 }
 
