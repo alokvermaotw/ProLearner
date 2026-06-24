@@ -41,6 +41,14 @@ body {
   flex-direction: column;
 }
 
+.panel-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+
 /* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 6px;
@@ -193,7 +201,7 @@ body {
 .prompt-section {
   padding: 12px 14px 8px 14px;
   background-color: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color);
 }
 
 .prompt-wrapper {
@@ -334,7 +342,6 @@ body {
   gap: 12px;
   flex: 1;
   overflow-y: auto;
-  max-height: 380px;
   padding-right: 4px;
 }
 

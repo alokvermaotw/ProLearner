@@ -742,7 +742,7 @@ function appendChatMessage(content, sender, isSpinner = false) {
   if (isSpinner) {
     bubbleDiv.innerHTML = '<span class="pulse-dot"></span> Thinking...';
   } else {
-    bubbleDiv.textContent = content;
+    bubbleDiv.innerHTML = parseMarkdown(content);
   }
   
   msgDiv.appendChild(bubbleDiv);
@@ -757,7 +757,7 @@ function updateChatMessage(msgId, content) {
   if (msgDiv) {
     const bubble = msgDiv.querySelector('.msg-bubble');
     if (bubble) {
-      bubble.textContent = content;
+      bubble.innerHTML = parseMarkdown(content);
     }
     doc.chatMessages.scrollTop = doc.chatMessages.scrollHeight;
   }
@@ -1169,4 +1169,98 @@ function escapeHTML(str) {
       '"': '&quot;'
     }[tag] || tag)
   );
+}
+
+function parseMarkdown(text) {
+  if (!text) return '';
+  
+  // Escape HTML to prevent XSS
+  let html = escapeHTML(text);
+
+  // Inline formatting
+  // Bold: **text**
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Italic: *text* or _text_
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
+  // Inline code: `code`
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Strikethrough: ~~text~~
+  html = html.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+
+  // Split into lines to parse block elements
+  const lines = html.split(/\r?\n/);
+  let result = [];
+  let inList = false;
+  let inOrderedList = false;
+
+  for (let line of lines) {
+    let trimmed = line.trim();
+
+    // Headers
+    if (trimmed.startsWith('### ')) {
+      if (inList) { result.push('</ul>'); inList = false; }
+      if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+      result.push(`<h3 style="margin-top: 0.5rem; margin-bottom: 0.25rem; font-family: var(--font-heading); font-weight: 600; font-size: 0.95rem;">${trimmed.substring(4)}</h3>`);
+      continue;
+    }
+    if (trimmed.startsWith('## ')) {
+      if (inList) { result.push('</ul>'); inList = false; }
+      if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+      result.push(`<h2 style="margin-top: 0.6rem; margin-bottom: 0.3rem; font-family: var(--font-heading); font-weight: 700; font-size: 1.05rem;">${trimmed.substring(3)}</h2>`);
+      continue;
+    }
+    if (trimmed.startsWith('# ')) {
+      if (inList) { result.push('</ul>'); inList = false; }
+      if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+      result.push(`<h1 style="margin-top: 0.7rem; margin-bottom: 0.35rem; font-family: var(--font-heading); font-weight: 700; font-size: 1.15rem;">${trimmed.substring(2)}</h1>`);
+      continue;
+    }
+
+    // Blockquotes
+    if (trimmed.startsWith('&gt; ')) {
+      if (inList) { result.push('</ul>'); inList = false; }
+      if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+      result.push(`<blockquote style="border-left: 3px solid var(--accent-indigo); padding-left: 10px; margin-left: 0; color: var(--text-muted); font-style: italic; margin-bottom: 0.5rem;">${trimmed.substring(5)}</blockquote>`);
+      continue;
+    }
+
+    // Unordered list items
+    if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+      if (!inList) {
+        if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+        result.push('<ul style="margin-left: 1.2rem; margin-bottom: 0.5rem; list-style-type: disc; padding-left: 0;">');
+        inList = true;
+      }
+      result.push(`<li style="margin-bottom: 0.25rem; line-height: 1.45;">${trimmed.substring(2)}</li>`);
+      continue;
+    }
+
+    // Ordered list items
+    const olMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+    if (olMatch) {
+      if (!inOrderedList) {
+        if (inList) { result.push('</ul>'); inList = false; }
+        result.push('<ol style="margin-left: 1.2rem; margin-bottom: 0.5rem; list-style-type: decimal; padding-left: 0;">');
+        inOrderedList = true;
+      }
+      result.push(`<li style="margin-bottom: 0.25rem; line-height: 1.45;">${olMatch[2]}</li>`);
+      continue;
+    }
+
+    // Empty lines or normal paragraphs
+    if (trimmed === '') {
+      if (inList) { result.push('</ul>'); inList = false; }
+      if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+    } else {
+      if (inList) { result.push('</ul>'); inList = false; }
+      if (inOrderedList) { result.push('</ol>'); inOrderedList = false; }
+      result.push(`<p style="margin-bottom: 0.5rem; line-height: 1.45;">${line}</p>`);
+    }
+  }
+
+  if (inList) result.push('</ul>');
+  if (inOrderedList) result.push('</ol>');
+
+  return result.join('\n');
 }

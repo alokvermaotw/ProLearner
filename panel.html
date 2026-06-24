@@ -21,8 +21,12 @@
     <header class="panel-header">
       <div class="brand">
         <svg class="brand-logo" viewBox="0 0 24 24" width="24" height="24">
-          <path fill="currentColor"
-            d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.58 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-8h2v2h-2zm0 4h2v2h-2z" />
+          <path fill="currentColor" d="M5 12 Q8 11 11 13 L11 19 Q8 17 5 18 Z" />
+          <path fill="currentColor" d="M13 13 Q16 11 19 12 L19 18 Q16 17 13 19 Z" />
+          <path fill="#f59e0b" d="M11.7 13 h0.6 v7 l-0.3 -0.5 l-0.3 0.5 Z" />
+          <path fill="currentColor" d="M12 5.3 l0.6 1.6 l1.6 0.6 l-1.6 0.6 l-0.6 1.6 l-0.6 -1.6 l-1.6 -0.6 l1.6 -0.6 Z" />
+          <path fill="currentColor" d="M7 5.2 l0.4 0.9 l0.9 0.4 l-0.9 0.4 l-0.4 0.9 l-0.4 -0.9 l-0.9 -0.4 l0.9 -0.4 Z" />
+          <path fill="currentColor" d="M17 6.5 l0.3 0.7 l0.7 0.3 l-0.7 0.3 l-0.3 0.7 l-0.3 -0.7 l-0.7 -0.3 l0.7 -0.3 Z" />
         </svg>
         <span class="brand-title">ProLearner</span>
         <span id="demo-badge" class="badge badge-demo">Demo Mode</span>
@@ -90,24 +94,6 @@
       </button>
     </nav>
 
-    <!-- Prompt / Query Box (Top of layout below tabs) -->
-    <section class="prompt-section">
-      <div class="prompt-wrapper">
-        <textarea id="prompt-input" rows="2" placeholder="Ask details about this page content..."></textarea>
-        <button id="btn-send-prompt" class="send-btn" title="Send Prompt">
-          <svg viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-          </svg>
-        </button>
-      </div>
-      <div class="prompt-meta">
-        <span id="char-limit-indicator" class="meta-label">Ready</span>
-        <span id="page-context-indicator" class="context-pill">
-          <span class="pulse-dot"></span>
-          Connected to Page
-        </span>
-      </div>
-    </section>
 
     <!-- Dynamic Content Window -->
     <main id="content-viewport" class="content-viewport">
@@ -278,6 +264,25 @@
 
     </main>
 
+    <!-- Prompt / Query Box (Bottom of layout) -->
+    <section class="prompt-section">
+      <div class="prompt-wrapper">
+        <textarea id="prompt-input" rows="2" placeholder="Ask details about this page content..."></textarea>
+        <button id="btn-send-prompt" class="send-btn" title="Send Prompt">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+          </svg>
+        </button>
+      </div>
+      <div class="prompt-meta">
+        <span id="char-limit-indicator" class="meta-label">Ready</span>
+        <span id="page-context-indicator" class="context-pill">
+          <span class="pulse-dot"></span>
+          Connected to Page
+        </span>
+      </div>
+    </section>
+
     <!-- Settings Modal Overlay -->
     <div id="settings-modal" class="modal-overlay hidden">
       <div class="modal card">
@@ -327,7 +332,7 @@
                   <span class="slider-switch"></span>
                   <span class="label-text">Save API Key locally</span>
                 </label>
-                <button id="btn-save-api-key" class="primary-btn small-btn">Save Key</button>
+                <button id="btn-save-api-key" class="primary-btn small-btn">Save</button>
               </div>
               <div id="api-key-save-status" class="save-status-msg hidden">Saved successfully!</div>
             </div>
