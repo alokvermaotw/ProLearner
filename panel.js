@@ -7,7 +7,10 @@ let isExpanded = false;
 let apiConfig = {
   mockMode: true,
   provider: 'gemini',
+  model: 'gemini-1.5-flash',
   apiKey: '',
+  saveApiKeyLocally: true,
+  enableCloudSync: true,
   account: null,
   syncHistory: []
 };
@@ -49,10 +52,17 @@ const doc = {
   toggleMockMode: document.getElementById('toggle-mock-mode'),
   apiKeysInputs: document.getElementById('api-keys-inputs'),
   selectProvider: document.getElementById('select-provider'),
+  selectModel: document.getElementById('select-model'),
   inputApiKey: document.getElementById('input-api-key'),
   btnToggleKeyVisibility: document.getElementById('btn-toggle-key-visibility'),
+  toggleSaveKey: document.getElementById('toggle-save-key'),
+  btnSaveApiKey: document.getElementById('btn-save-api-key'),
+  apiKeySaveStatus: document.getElementById('api-key-save-status'),
   
   // Settings Account
+  toggleCloudSync: document.getElementById('toggle-cloud-sync'),
+  cloudSyncContainer: document.getElementById('cloud-sync-container'),
+  browserSyncLogSection: document.getElementById('browser-sync-log-section'),
   accountLoggedOut: document.getElementById('account-logged-out'),
   accountLoggedIn: document.getElementById('account-logged-in'),
   syncEmail: document.getElementById('sync-email'),
@@ -155,11 +165,58 @@ async function saveConfig() {
   }
 }
 
+const PROVIDER_MODELS = {
+  gemini: [
+    { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+    { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+    { value: 'gemini-1.5-flash-8b', label: 'Gemini 1.5 Flash-8B' },
+    { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+    { value: 'gemini-2.0-flash-lite-preview-02-05', label: 'Gemini 2.0 Flash-Lite (Preview)' },
+    { value: 'gemini-2.0-pro-exp', label: 'Gemini 2.0 Pro (Exp)' },
+    { value: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
+    { value: 'gemini-3.5-pro', label: 'Gemini 3.5 Pro' },
+    { value: 'gemini-1.0-pro', label: 'Gemini 1.0 Pro' }
+  ],
+  openai: [
+    { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+    { value: 'gpt-4o', label: 'GPT-4o' },
+    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+    { value: 'gpt-4', label: 'GPT-4' },
+    { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
+    { value: 'o1-mini', label: 'o1-mini' },
+    { value: 'o1-preview', label: 'o1-preview' },
+    { value: 'o3-mini', label: 'o3-mini' },
+    { value: 'gpt-5', label: 'GPT-5' },
+    { value: 'gpt-5-mini', label: 'GPT-5 Mini' }
+  ]
+};
+
+function populateModelSelector() {
+  const provider = doc.selectProvider.value;
+  const models = PROVIDER_MODELS[provider] || [];
+  
+  doc.selectModel.innerHTML = models.map(m => `
+    <option value="${m.value}">${m.label}</option>
+  `).join('');
+  
+  if (models.some(m => m.value === apiConfig.model)) {
+    doc.selectModel.value = apiConfig.model;
+  } else {
+    if (models.length > 0) {
+      apiConfig.model = models[0].value;
+      doc.selectModel.value = models[0].value;
+    }
+  }
+}
+
 // Update settings forms to match configuration state
 function updateSettingsUI() {
   doc.toggleMockMode.checked = apiConfig.mockMode;
   doc.selectProvider.value = apiConfig.provider;
+  populateModelSelector();
   doc.inputApiKey.value = apiConfig.apiKey;
+  doc.toggleSaveKey.checked = !!apiConfig.saveApiKeyLocally;
+  doc.toggleCloudSync.checked = !!apiConfig.enableCloudSync;
   
   if (apiConfig.mockMode) {
     doc.apiKeysInputs.classList.add('disabled-opacity');
@@ -169,8 +226,17 @@ function updateSettingsUI() {
     doc.demoBadge.classList.add('hidden');
   }
 
+  // Handle Cloud Sync toggle
+  if (apiConfig.enableCloudSync) {
+    doc.cloudSyncContainer.classList.remove('disabled-opacity');
+    doc.browserSyncLogSection.classList.remove('disabled-opacity');
+  } else {
+    doc.cloudSyncContainer.classList.add('disabled-opacity');
+    doc.browserSyncLogSection.classList.add('disabled-opacity');
+  }
+
   // Account views
-  if (apiConfig.account) {
+  if (apiConfig.account && apiConfig.enableCloudSync) {
     doc.accountLoggedOut.classList.add('hidden');
     doc.accountLoggedIn.classList.remove('hidden');
     doc.userDisplayEmail.textContent = apiConfig.account.email;
@@ -180,8 +246,14 @@ function updateSettingsUI() {
     doc.btnSyncQuiz.removeAttribute('disabled');
     doc.btnSyncNotes.removeAttribute('disabled');
   } else {
-    doc.accountLoggedOut.classList.remove('hidden');
-    doc.accountLoggedIn.classList.add('hidden');
+    if (apiConfig.account) {
+      doc.accountLoggedOut.classList.add('hidden');
+      doc.accountLoggedIn.classList.remove('hidden');
+      doc.userDisplayEmail.textContent = apiConfig.account.email;
+    } else {
+      doc.accountLoggedOut.classList.remove('hidden');
+      doc.accountLoggedIn.classList.add('hidden');
+    }
     
     // Disable sync buttons
     doc.btnSyncCards.setAttribute('disabled', 'true');
@@ -270,12 +342,68 @@ function initListeners() {
 
   doc.selectProvider.addEventListener('change', (e) => {
     apiConfig.provider = e.target.value;
-    saveConfig();
+    populateModelSelector();
+    apiConfig.model = doc.selectModel.value;
+  });
+
+  doc.selectModel.addEventListener('change', (e) => {
+    apiConfig.model = e.target.value;
   });
 
   doc.inputApiKey.addEventListener('input', (e) => {
     apiConfig.apiKey = e.target.value;
+  });
+
+  doc.toggleSaveKey.addEventListener('change', (e) => {
+    apiConfig.saveApiKeyLocally = e.target.checked;
+    if (!apiConfig.saveApiKeyLocally) {
+      const keyBackup = apiConfig.apiKey;
+      apiConfig.apiKey = '';
+      saveConfig();
+      apiConfig.apiKey = keyBackup;
+      
+      doc.apiKeySaveStatus.textContent = 'API Key persistent storage disabled.';
+      doc.apiKeySaveStatus.classList.remove('hidden');
+      setTimeout(() => {
+        doc.apiKeySaveStatus.classList.add('hidden');
+      }, 2000);
+    } else {
+      apiConfig.apiKey = doc.inputApiKey.value.trim();
+      saveConfig();
+      doc.apiKeySaveStatus.textContent = 'API Key persistent storage enabled.';
+      doc.apiKeySaveStatus.classList.remove('hidden');
+      setTimeout(() => {
+        doc.apiKeySaveStatus.classList.add('hidden');
+      }, 2000);
+    }
+  });
+
+  doc.btnSaveApiKey.addEventListener('click', () => {
+    apiConfig.apiKey = doc.inputApiKey.value.trim();
+    apiConfig.provider = doc.selectProvider.value;
+    apiConfig.model = doc.selectModel.value;
+    apiConfig.saveApiKeyLocally = doc.toggleSaveKey.checked;
+    
+    if (apiConfig.saveApiKeyLocally) {
+      saveConfig();
+    } else {
+      const keyBackup = apiConfig.apiKey;
+      apiConfig.apiKey = '';
+      saveConfig();
+      apiConfig.apiKey = keyBackup;
+    }
+    
+    doc.apiKeySaveStatus.textContent = 'Saved successfully!';
+    doc.apiKeySaveStatus.classList.remove('hidden');
+    setTimeout(() => {
+      doc.apiKeySaveStatus.classList.add('hidden');
+    }, 2000);
+  });
+
+  doc.toggleCloudSync.addEventListener('change', (e) => {
+    apiConfig.enableCloudSync = e.target.checked;
     saveConfig();
+    updateSettingsUI();
   });
 
   doc.btnToggleKeyVisibility.addEventListener('click', () => {
@@ -511,7 +639,10 @@ async function executeLLMCall(systemPrompt, userPrompt) {
   
   if (apiConfig.provider === 'gemini') {
     // Call Gemini API
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+    const model = apiConfig.model || 'gemini-1.5-flash';
+    // Use v1 for stable models, v1beta for experimental/preview models
+    const apiVersion = model.includes('2.0') || model.includes('3.5') || model.includes('exp') ? 'v1beta' : 'v1';
+    const url = `https://generativelanguage.googleapis.com/${apiVersion}/models/${model}:generateContent?key=${key}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -533,6 +664,7 @@ async function executeLLMCall(systemPrompt, userPrompt) {
     
   } else {
     // Call OpenAI API
+    const model = apiConfig.model || 'gpt-4o-mini';
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -540,7 +672,7 @@ async function executeLLMCall(systemPrompt, userPrompt) {
         'Authorization': `Bearer ${key}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: model,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Page Text Context:\n${pageText}\n\nInstruction:\n${userPrompt}` }
@@ -975,7 +1107,7 @@ function handleAccountLogout() {
 }
 
 function simulateSync(featureName, syncButton) {
-  if (!apiConfig.account) return;
+  if (!apiConfig.account || !apiConfig.enableCloudSync) return;
   
   syncButton.classList.add('sync-active');
   syncButton.setAttribute('disabled', 'true');

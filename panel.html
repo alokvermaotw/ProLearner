@@ -1,23 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ProLearner LLM Panel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="panel.css">
 </head>
+
 <body>
   <!-- Main Container -->
   <div id="panel-container" class="panel-layout">
-    
+
     <!-- Top Header -->
     <header class="panel-header">
       <div class="brand">
         <svg class="brand-logo" viewBox="0 0 24 24" width="24" height="24">
-          <path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.58 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-8h2v2h-2zm0 4h2v2h-2z" />
+          <path fill="currentColor"
+            d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 19.4c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0l1.9-1.9C9.22 19.58 10.57 20 12 20c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-8h2v2h-2zm0 4h2v2h-2z" />
         </svg>
         <span class="brand-title">ProLearner</span>
         <span id="demo-badge" class="badge badge-demo">Demo Mode</span>
@@ -26,19 +31,22 @@
         <!-- Close button -->
         <button id="btn-close" class="icon-btn" title="Close Panel">
           <svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+            <path fill="currentColor"
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
           </svg>
         </button>
         <!-- Expand button -->
         <button id="btn-expand" class="icon-btn" title="Expand to 50% width">
           <svg id="svg-expand" viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor" d="M4 4h7v2H6v5H4V4zm10 0h7v7h-2V6h-5V4zM4 14h2v5h5v2H4v-7zm15 5h-5v2h7v-7h-2v5z"/>
+            <path fill="currentColor"
+              d="M4 4h7v2H6v5H4V4zm10 0h7v7h-2V6h-5V4zM4 14h2v5h5v2H4v-7zm15 5h-5v2h7v-7h-2v5z" />
           </svg>
         </button>
         <!-- Settings button -->
         <button id="btn-settings" class="icon-btn" title="API & Account Settings">
           <svg viewBox="0 0 24 24" width="18" height="18">
-            <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            <path fill="currentColor"
+              d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
           </svg>
         </button>
       </div>
@@ -48,31 +56,35 @@
     <nav class="mode-tabs">
       <button class="tab-btn active" data-tab="chat">
         <svg viewBox="0 0 24 24" width="16" height="16">
-          <path fill="currentColor" d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+          <path fill="currentColor"
+            d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z" />
         </svg>
         <span>Chat</span>
       </button>
       <button class="tab-btn" data-tab="summarizer">
         <svg viewBox="0 0 24 24" width="16" height="16">
-          <path fill="currentColor" d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/>
+          <path fill="currentColor" d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z" />
         </svg>
         <span>Summary</span>
       </button>
       <button class="tab-btn" data-tab="flashcards">
         <svg viewBox="0 0 24 24" width="16" height="16">
-          <path fill="currentColor" d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/>
+          <path fill="currentColor"
+            d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
         </svg>
         <span>Cards</span>
       </button>
       <button class="tab-btn" data-tab="quiz">
         <svg viewBox="0 0 24 24" width="16" height="16">
-          <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/>
+          <path fill="currentColor"
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" />
         </svg>
         <span>Quiz</span>
       </button>
       <button class="tab-btn" data-tab="notes">
         <svg viewBox="0 0 24 24" width="16" height="16">
-          <path fill="currentColor" d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.51-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z"/>
+          <path fill="currentColor"
+            d="M14.06 9.02l.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.51-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z" />
         </svg>
         <span>Notes</span>
       </button>
@@ -84,7 +96,7 @@
         <textarea id="prompt-input" rows="2" placeholder="Ask details about this page content..."></textarea>
         <button id="btn-send-prompt" class="send-btn" title="Send Prompt">
           <svg viewBox="0 0 24 24" width="20" height="20">
-            <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
           </svg>
         </button>
       </div>
@@ -99,7 +111,7 @@
 
     <!-- Dynamic Content Window -->
     <main id="content-viewport" class="content-viewport">
-      
+
       <!-- 1. CHAT MODE VIEW -->
       <section id="view-chat" class="mode-view active">
         <div class="messages-container" id="chat-messages">
@@ -141,7 +153,7 @@
             <span class="sync-icon">&#8635;</span> Sync Account
           </button>
         </div>
-        
+
         <div id="flashcards-deck-container" class="deck-container hidden">
           <div class="flashcard-wrapper">
             <div class="flashcard" id="flashcard-3d">
@@ -244,7 +256,8 @@
           <!-- Personal Notes Area -->
           <div class="personal-notes card">
             <h3>Personal Study Pad</h3>
-            <textarea id="personal-notes-area" rows="6" placeholder="Type your notes here... They auto-save to browser storage!"></textarea>
+            <textarea id="personal-notes-area" rows="6"
+              placeholder="Type your notes here... They auto-save to browser storage!"></textarea>
             <div class="notes-meta">
               <span id="notes-save-status">Saved locally</span>
             </div>
@@ -276,7 +289,7 @@
           <!-- API Keys Section -->
           <section class="settings-section">
             <h3>LLM Configurations</h3>
-            
+
             <div class="form-group row">
               <label class="switch-label">
                 <input type="checkbox" id="toggle-mock-mode" checked>
@@ -286,12 +299,20 @@
             </div>
 
             <div id="api-keys-inputs" class="disabled-opacity">
-              <div class="form-group">
-                <label for="select-provider">API Provider</label>
-                <select id="select-provider">
-                  <option value="gemini">Google Gemini (Default)</option>
-                  <option value="openai">OpenAI ChatGPT</option>
-                </select>
+              <div class="form-row-group">
+                <div class="form-group flex-1">
+                  <label for="select-provider">API Provider</label>
+                  <select id="select-provider">
+                    <option value="gemini">Gemini</option>
+                    <option value="openai">OpenAI</option>
+                  </select>
+                </div>
+                <div class="form-group flex-1">
+                  <label for="select-model">API Model</label>
+                  <select id="select-model">
+                    <!-- populated dynamically -->
+                  </select>
+                </div>
               </div>
               <div class="form-group">
                 <label for="input-api-key">API Auth Key</label>
@@ -299,42 +320,60 @@
                   <input type="password" id="input-api-key" placeholder="Enter API key...">
                   <button id="btn-toggle-key-visibility" class="view-key-btn">Show</button>
                 </div>
-                <small class="help-text">API Keys are stored securely in local browser storage.</small>
               </div>
+              <div class="form-actions-row">
+                <label class="switch-label">
+                  <input type="checkbox" id="toggle-save-key" checked>
+                  <span class="slider-switch"></span>
+                  <span class="label-text">Save API Key locally</span>
+                </label>
+                <button id="btn-save-api-key" class="primary-btn small-btn">Save Key</button>
+              </div>
+              <div id="api-key-save-status" class="save-status-msg hidden">Saved successfully!</div>
             </div>
           </section>
 
           <!-- Account Sync Settings -->
           <section class="settings-section">
-            <h3>ProLearner Account Cloud Sync</h3>
-            <div id="account-logged-out" class="account-forms">
-              <div class="form-group">
-                <label for="sync-email">Email Address</label>
-                <input type="email" id="sync-email" placeholder="email@prolearner.com">
-              </div>
-              <div class="form-group">
-                <label for="sync-password">Password</label>
-                <input type="password" id="sync-password" placeholder="Password">
-              </div>
-              <div class="form-actions">
-                <button id="btn-signup" class="primary-btn small-btn">Sign Up</button>
-                <button id="btn-login" class="outline-btn small-btn">Log In</button>
-              </div>
+            <div class="sync-section-header">
+              <h3>ProLearner Account Cloud Sync</h3>
+              <label class="switch-label">
+                <input type="checkbox" id="toggle-cloud-sync" checked>
+                <span class="slider-switch"></span>
+                <span class="label-text tiny-label">Enable Cloud Sync</span>
+              </label>
             </div>
-            <div id="account-logged-in" class="account-forms hidden">
-              <div class="logged-in-profile">
-                <div class="user-avatar">PL</div>
-                <div class="user-details">
-                  <span class="user-name" id="user-display-email">user@prolearner.com</span>
-                  <span class="badge badge-success">Sync Active</span>
+
+            <div id="cloud-sync-container">
+              <div id="account-logged-out" class="account-forms">
+                <div class="form-group">
+                  <label for="sync-email">Email Address</label>
+                  <input type="email" id="sync-email" placeholder="email@prolearner.com">
+                </div>
+                <div class="form-group">
+                  <label for="sync-password">Password</label>
+                  <input type="password" id="sync-password" placeholder="Password">
+                </div>
+                <div class="form-actions">
+                  <button id="btn-signup" class="primary-btn small-btn">Sign Up</button>
+                  <button id="btn-login" class="outline-btn small-btn">Log In</button>
                 </div>
               </div>
-              <button id="btn-logout" class="danger-btn small-btn">Log Out / Stop Syncing</button>
+              <div id="account-logged-in" class="account-forms hidden">
+                <div class="logged-in-profile">
+                  <div class="user-avatar">PL</div>
+                  <div class="user-details">
+                    <span class="user-name" id="user-display-email">user@prolearner.com</span>
+                    <span class="badge badge-success">Sync Active</span>
+                  </div>
+                </div>
+                <button id="btn-logout" class="danger-btn small-btn">Log Out / Stop Syncing</button>
+              </div>
             </div>
           </section>
 
           <!-- Browser History Logs -->
-          <section class="settings-section">
+          <section id="browser-sync-log-section" class="settings-section">
             <h3>Browser Sync Log</h3>
             <div class="sync-logs-list" id="sync-history-logs">
               <p class="no-logs">No pages synced yet. Log in to start syncing browser history.</p>
@@ -348,4 +387,5 @@
 
   <script src="panel.js"></script>
 </body>
+
 </html>
